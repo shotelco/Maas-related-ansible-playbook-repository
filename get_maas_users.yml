@@ -1,0 +1,25 @@
+---
+- name: Get all users from MAAS
+  hosts: localhost
+  connection: local # Run in Semaphore's environment
+  gather_facts: no
+  tasks:
+    - name: List all MAAS users
+      maas.maas.user_info:
+        # These values should come from the Semaphore Secret/Credential
+        # attached to the Task Template (see steps below).
+        # Assumes URL stored in Username field, API Key in Password/Key field of the credential.
+        maas_url: "{{ lookup('env', 'SEMAPHORE_USERNAME') }}"
+        maas_api_key: "{{ lookup('env', 'SEMAPHORE_PASSWORD') }}"
+        # Note: Removed the "name: John" filter to get *all* users
+      register: users_result
+      # Make task fail if the module itself explicitly reports failure
+      failed_when: users_result.failed is defined and users_result.failed
+
+    - name: Display MAAS users list
+      ansible.builtin.debug:
+        # The actual user data is usually in a subkey like 'result' or 'users'
+        # Adjust 'users_result.result' if needed based on actual module output
+        var: users_result.result
+      # Only attempt to display if the previous task didn't explicitly fail
+      when: users_result.failed is not defined or not users_result.failed
