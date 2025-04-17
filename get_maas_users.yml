@@ -19,7 +19,7 @@
       register: users_result
       failed_when: users_result.failed is defined and users_result.failed
 
-    - name: Display MAAS users list
+    - name: Display FULL MAAS user info result
       ansible.builtin.debug:
-        var: users_result.result
+        var: users_result
       when: users_result.failed is not defined or not users_result.failed
