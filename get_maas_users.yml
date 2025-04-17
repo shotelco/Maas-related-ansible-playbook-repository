@@ -5,9 +5,17 @@
   gather_facts: no
   tasks:
     - name: List all MAAS users
+      vars:
+        # Split the combined API key from the secret into a list
+        # Assumes key format is "consumer_key:token_key:token_secret"
+        maas_key_parts: "{{ maas_api_key_secret | split(':') }}"
       maas.maas.user_info:
-        maas_url: "{{ maas_url_secret }}"
-        maas_api_key: "{{ maas_api_key_secret }}"
+        cluster_instance:
+          host: "{{ maas_url_secret }}"
+          # Assign the parts using list indices (0=consumer, 1=token, 2=secret)
+          customer_key: "{{ maas_key_parts[0] }}"
+          token_key: "{{ maas_key_parts[1] }}"
+          token_secret: "{{ maas_key_parts[2] }}"
       register: users_result
       failed_when: users_result.failed is defined and users_result.failed
 
