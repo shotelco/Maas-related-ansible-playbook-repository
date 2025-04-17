@@ -5,16 +5,13 @@
   gather_facts: no
   tasks:
     - name: List all MAAS users
-      maas.maas.user_info:
-        # These values should come from the Semaphore Secret/Credential
-        # attached to the Task Template (see steps below).
-        # Assumes URL stored in Username field, API Key in Password/Key field of the credential.
-        maas_url: "{{ lookup('env', 'SEMAPHORE_USERNAME') }}"
-        maas_api_key: "{{ lookup('env', 'SEMAPHORE_PASSWORD') }}"
-        # Note: Removed the "name: John" filter to get *all* users
-      register: users_result
-      # Make task fail if the module itself explicitly reports failure
-      failed_when: users_result.failed is defined and users_result.failed
+        maas.maas.user_info:
+          # Use variables defined in the attached Variable Group
+          maas_url: "{{ maas_url_secret }}"
+          maas_api_key: "{{ maas_api_key_secret }}"
+        register: users_result
+        # Make task fail if the module itself explicitly reports failure
+        failed_when: users_result.failed is defined and users_result.failed
 
     - name: Display MAAS users list
       ansible.builtin.debug:
