@@ -1,22 +1,17 @@
 ---
 - name: Get all users from MAAS
   hosts: localhost
-  connection: local # Run in Semaphore's environment
+  connection: local
   gather_facts: no
   tasks:
     - name: List all MAAS users
-        maas.maas.user_info:
-          # Use variables defined in the attached Variable Group
-          maas_url: "{{ maas_url_secret }}"
-          maas_api_key: "{{ maas_api_key_secret }}"
-        register: users_result
-        # Make task fail if the module itself explicitly reports failure
-        failed_when: users_result.failed is defined and users_result.failed
+      maas.maas.user_info:
+        maas_url: "{{ maas_url_secret }}"
+        maas_api_key: "{{ maas_api_key_secret }}"
+      register: users_result
+      failed_when: users_result.failed is defined and users_result.failed
 
     - name: Display MAAS users list
       ansible.builtin.debug:
-        # The actual user data is usually in a subkey like 'result' or 'users'
-        # Adjust 'users_result.result' if needed based on actual module output
         var: users_result.result
-      # Only attempt to display if the previous task didn't explicitly fail
       when: users_result.failed is not defined or not users_result.failed
